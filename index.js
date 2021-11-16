@@ -23,7 +23,7 @@ let outside = {
   roomName: "Outside",
   roomIntro:
     "\nYou've returned home after a night on the town. You get to the door to enter the foyer but there is a keypad that needs a code and a sign right above it\n",
-  roomActions: ["enter", "help", "type", "read", "eat", "room", "i"],
+  roomActions: ["enter", "help", "type", "read", "eat", "room", "i", "drop"],
   roomConnections: ["foyer"],
   roomInventory: ["sign", "8675309"],
   roomDescriptions: {
@@ -35,6 +35,13 @@ let outside = {
     },
     i: function () {
       inventory();
+    },
+    "drop newspaper": function () {
+      console.log("reached")
+      dropItem("newspaper", currentRoom);
+    },
+    "drop sandwich": function () {
+      dropItem("sandwich", currentRoom);
     },
     "read sign": async function () {
       inputAnswer = await ask(
@@ -72,7 +79,7 @@ let foyer = {
   roomName: "foyer",
   roomIntro:
     "\nYou've stepped foot in to the foyer, empty outside of a newspaper atop a table. You see a door to the bathroom and a door to the kitchen\n",
-  roomActions: ["enter", "help", "take", "eat", "room", "i"],
+  roomActions: ["enter", "help", "take", "eat", "room", "i", "drop"],
   roomConnections: ["outside", "bathroom", "kitchen"],
   roomInventory: ["newspaper"],
   roomDescriptions: {
@@ -84,6 +91,13 @@ let foyer = {
     },
     i: function () {
       inventory();
+    },
+    "drop newspaper": function () {
+      console.log("reached")
+      dropItem("newspaper", currentRoom);
+    },
+    "drop sandwich": function () {
+      dropItem("sandwich", currentRoom);
     },
     "take newspaper": async function () {
       playerInventory.push("newspaper");
@@ -122,7 +136,7 @@ let kitchen = {
   roomName: "Kitchen",
   roomIntro:
     "\nYou have entered the Kitchen, you notice all of the elements to make a prime sandwich on the cutting board and two doors: one leading to the backyard and one to the foyer\n",
-  roomActions: ["enter", "help", "make", "eat", "room", "i"],
+  roomActions: ["enter", "help", "make", "eat", "room", "i", "drop"],
   roomConnections: ["foyer", "backyard"],
   roomInventory: ["sandwich"],
   roomDescriptions: {
@@ -134,6 +148,12 @@ let kitchen = {
     },
     i: function () {
       inventory();
+    },
+    "drop newspaper": function () {
+      dropItem("newspaper", currentRoom);
+    },
+    "drop sandwich": function () {
+      dropItem("sandwich", currentRoom);
     },
     "make sandwich": async function () {
       if (kitchen.roomInventory.includes("sandwich")) {
@@ -175,7 +195,7 @@ let bathroom = {
   roomName: "Bathroom",
   roomIntro:
     "\nYou have entered a Bathroom with just a toilet in it... As well as two doors, one to the bedroom and one to the foyer\n",
-  roomActions: ["enter", "help", "use", "read", "eat", "room", "i"],
+  roomActions: ["enter", "help", "use", "read", "eat", "room", "i", "drop"],
   roomConnections: ["foyer", "bedroom"],
   roomInventory: ["toilet"],
   roomDescriptions: {
@@ -187,6 +207,12 @@ let bathroom = {
     },
     i: function () {
       inventory();
+    },
+    "drop newspaper": function () {
+      dropItem("newspaper", currentRoom);
+    },
+    "drop sandwich": function () {
+      dropItem("sandwich", currentRoom);
     },
     "enter foyer": function () {
       enterRoom(foyer);
@@ -242,7 +268,7 @@ let bedRoom = {
   roomName: "Bed Room",
   roomIntro:
     "\nYou have entered your bedroom, pretty empty outside of a bed and two doors: one to the livingroom and one to the bathroom\n",
-  roomActions: ["enter", "help", "use", "eat", "room", "i"],
+  roomActions: ["enter", "help", "use", "eat", "room", "i", "drop"],
   roomConnections: ["bathroom", "livingroom"],
   roomInventory: ["bed"],
   roomDescriptions: {
@@ -254,6 +280,12 @@ let bedRoom = {
     },
     i: function () {
       inventory();
+    },
+    "drop newspaper": function () {
+      dropItem("newspaper", currentRoom);
+    },
+    "drop sandwich": function () {
+      dropItem("sandwich", currentRoom);
     },
     "enter bathroom": function () {
       enterRoom(bathroom);
@@ -290,7 +322,7 @@ let backyard = {
   roomName: "Backyard",
   roomIntro:
     "\nYou have entered the backyard where you hear your dog barking for attention. As well as two doors: one to the kitchen and one to the living room\n",
-  roomActions: ["enter", "help", "pet", "eat", "room", "i"],
+  roomActions: ["enter", "help", "pet", "eat", "room", "i", "drop"],
   roomConnections: ["kitchen", "livingroom"],
   roomInventory: ["dog"],
   roomDescriptions: {
@@ -302,6 +334,12 @@ let backyard = {
     },
     i: function () {
       inventory();
+    },
+    "drop newspaper": function () {
+      dropItem("newspaper", currentRoom);
+    },
+    "drop sandwich": function () {
+      dropItem("sandwich", currentRoom);
     },
     "enter livingroom": function () {
       enterRoom(livingRoom);
@@ -331,7 +369,7 @@ let livingRoom = {
   roomName: "Living Room",
   roomIntro:
     "\nYou have entered the Living room, where you see your computer you use for class, Also two doors: one to the bedroom and one to the backyard\n",
-  roomActions: ["enter", "help", "use", "eat", "room", "i"],
+  roomActions: ["enter", "help", "use", "eat", "room", "i", "drop"],
   roomConnections: ["bedroom", "backyard"],
   roomInventory: ["computer"],
   roomDescriptions: {
@@ -343,6 +381,12 @@ let livingRoom = {
     },
     i: function () {
       inventory();
+    },
+    "drop newspaper": function () {
+      dropItem("newspaper", currentRoom);
+    },
+    "drop sandwich": function () {
+      dropItem("sandwich", currentRoom);
     },
     "enter backyard": function () {
       enterRoom(backyard);
@@ -422,7 +466,7 @@ async function inputFormatter(str, room) {
     str.pop();
   }
 
-  // formats input
+  // formats input, checks if there is a second command
   str[0] = str[0].toLowerCase();
   if (str.length === 2) {
     str[1] = str[1].toLowerCase();
@@ -496,6 +540,23 @@ async function enterRoom(newRoom) {
   currentRoom = newRoom;
   inputAnswer = await ask(newRoom.roomIntro);
   inputFormatter(inputAnswer, newRoom);
+}
+
+// drops a specific item from your inventory
+async function dropItem(item, newRoom) {
+  if (playerInventory.includes(item)) {
+    for (let i = 0; i < playerInventory.length; i++) {
+      if (item = playerInventory[i]) {
+        playerInventory.splice(i, 1)
+      }
+    }
+    inputAnswer = await ask("\nThe " + item + " has been dropped from your inventory\n");
+    inputFormatter(inputAnswer, newRoom);
+  }
+  else {
+    inputAnswer = await ask("\nYou do not have a " + item + " in your inventory...\n");
+    inputFormatter(inputAnswer, newRoom);
+  }
 }
 
 // eats sandwich when in player inventory
